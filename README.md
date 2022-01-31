@@ -25,3 +25,12 @@ Resolved by removing `.` in file name
 ```bash
 terraform plan -destroy -out=example
 ```
+
+### "availability_zones": conflicts with vpc_zone_identifier
+
+Needed to delete `availability_zones` line
+
+```tf
+  availability_zones = ["eu-west-1a", "eu-west-1b"]
+  vpc_zone_identifier = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+```
