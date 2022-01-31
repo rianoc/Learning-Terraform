@@ -18,13 +18,13 @@ resource "aws_launch_template" "this" {
   name_prefix   = "${var.web_app}-web"
   image_id      = var.web_image_id
   instance_type = var.web_instance_type
+  vpc_security_group_ids = var.security_groups
   tags = {
     "Terraform" : "true"
   }
 }
 
 resource "aws_autoscaling_group" "this" {
-  #availability_zones  = ["eu-west-1a","eu-west-1b"]
   vpc_zone_identifier = var.subnets
   desired_capacity    = var.web_desired_capacity
   max_size            = var.web_max_size
