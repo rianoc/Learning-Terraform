@@ -1,3 +1,22 @@
+variable "whitelist" {
+  type = list(string)
+}
+variable "web_image_id" {
+  type = string
+}
+variable "web_instance_type" {
+  type = string
+}
+variable "web_desired_capacity" {
+  type = number
+}
+variable "web_max_size" {
+  type = number
+}
+variable "web_min_size" {
+  type = number
+}
+
 provider "aws" {
   profile = "default"
   region  = "eu-west-1"
@@ -71,16 +90,16 @@ resource "aws_elb" "prod-web" {
 
 resource "aws_launch_template" "prod-web" {
   name_prefix   = "prod-web"
-  image_id      = "ami-00de9f83a77a54bf1"
-  instance_type = "t2.micro"
+  image_id      = var.web_image_id
+  instance_type = var.web_instance_type
 }
 
 resource "aws_autoscaling_group" "prod-web" {
   #availability_zones = ["eu-west-1a", "eu-west-1b"] In course but causes error
   vpc_zone_identifier = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
-  desired_capacity   = 1
-  max_size           = 1
-  min_size           = 1
+  desired_capacity   = var.web_desired_capacity
+  max_size           = var.web_max_size
+  min_size           = var.web_min_size
 
   launch_template {
     id      = aws_launch_template.prod-web.id
