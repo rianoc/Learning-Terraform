@@ -24,8 +24,8 @@ resource "aws_default_subnet" "default_az2" {
   }
 }
 
-resource "aws_security_group" "prod_web" {
-  name        = "prod_web"
+resource "aws_security_group" "prod-web" {
+  name        = "prod-web"
   description = "Allow http/https inbound. Everything outbound"
 
   ingress {
@@ -52,37 +52,10 @@ resource "aws_security_group" "prod_web" {
   }
 }
 
-resource "aws_instance" "prod_web" {
-  count = 2
-
-  ami           = "ami-00de9f83a77a54bf1"
-  instance_type = "t2.nano"
-
-  vpc_security_group_ids = [
-    aws_security_group.prod_web.id
-  ]
-
-    tags = {
-    "Terraform" : "true"
-  }
-}
-
-resource "aws_eip_association" "prod_web" {
-  instance_id      = aws_instance.prod_web.0.id
-  allocation_id = aws_eip.prod_web.id
-}
-
-resource "aws_eip" "prod_web" {
-  tags = {
-    "Terraform" : "true"
-  }
-}
-
-resource "aws_elb" "prod_web" {
+resource "aws_elb" "prod-web" {
   name            = "prod-web"
-  instances       = aws_instance.prod_web.*.id
   subnets         = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
-  security_groups = [aws_security_group.prod_web.id]
+  security_groups = [aws_security_group.prod-web.id]
 
   listener {
     instance_port     = 80
@@ -94,4 +67,32 @@ resource "aws_elb" "prod_web" {
   tags = {
     "Terraform" : "true"
   }
+}
+
+resource "aws_launch_template" "prod-web" {
+  name_prefix   = "prod-web"
+  image_id      = "ami-00de9f83a77a54bf1"
+  instance_type = "t2.micro"
+}
+
+resource "aws_autoscaling_group" "prod-web" {
+  #availability_zones = ["eu-west-1a", "eu-west-1b"] In course but causes error
+  vpc_zone_identifier = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+  desired_capacity   = 1
+  max_size           = 1
+  min_size           = 1
+
+  launch_template {
+    id      = aws_launch_template.prod-web.id
+    version = "$Latest"
+  }
+  tag {
+    key                 = "Terraform"
+    value               = "true"
+    propagate_at_launch = "true"
+  }
+}
+resource "aws_autoscaling_attachment" "prod-web" {
+  autoscaling_group_name = aws_autoscaling_group.prod-web.id
+  elb                    = aws_elb.prod-web.id
 }
