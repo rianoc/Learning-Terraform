@@ -1,6 +1,6 @@
 # Learning-Terraform
 
-Code for <https://www.linkedin.com/learning/learning-terraform-2>
+Code and notes for <https://www.linkedin.com/learning/learning-terraform-2>
 
 * [Learning-Terraform](#learning-terraform)
   * [Notes](#notes)
@@ -20,7 +20,9 @@ Error: error configuring Terraform AWS Provider: no valid credential sources for
 │ for more information about providing credentials.
 ```
 
-Resolved by correcting typo in `credentias` file. <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>
+Resolved by correcting typo in `credentials` file.
+
+<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>
 
 ### Error: Too many command line arguments
 
